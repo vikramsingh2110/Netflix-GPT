@@ -2,6 +2,9 @@
 
 - Create React App
 - Configured TailwindCSS
+- Header
+- Login Form
+- Sign up Form
 
 # Features
 - Login/Sign Up
@@ -12,7 +15,7 @@
     - Main Movie
        - Trailer in background
        - Title & Description
-       - Movie Suggestions
+       
           - MovieLists * N
 - Netflix GPT
     - Search Bar
