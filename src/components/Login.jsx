@@ -1,12 +1,19 @@
 import React, { useRef, useState } from 'react'
 import Header from './Header'
 import { checkValidateData } from '../utils/validate'
+import {createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile  } from "firebase/auth"
+import { auth } from '../utils/firebase'
+import { useDispatch, useSelector } from 'react-redux'
+import { addUser } from '../utils/userSlice'
+import { BackgroundIMG } from '../utils/constants'
 
 const Login = () => {
 
+  const dispatch = useDispatch();
   const [isSignIn, setISSignIN] = useState(true)
   const [errorMessage, setErrorMessage] = useState(null)
 
+  const name = useRef(null);
   const email = useRef(null);
   const password = useRef(null);
 
@@ -17,6 +24,61 @@ const Login = () => {
     
     const message = checkValidateData(email.current.value,password.current.value)
     setErrorMessage(message)
+
+    if(message) return;
+    //else sign in/sign up
+
+    if(!isSignIn){
+      //Sign Up Logic
+      createUserWithEmailAndPassword(
+        auth,
+        email.current.value,
+        password.current.value)
+  .then((userCredential) => {
+    // Signed up 
+    const user = userCredential.user;
+    updateProfile(user, {
+      displayName: name.current.value, photoURL: "https://steamuserimages-a.akamaihd.net/ugc/872998386575050985/84BC2665965A3FF9F2E478C10A000B8DCFED22C6/"
+    }).then(() => {
+      // Profile updated!
+      const {uid, email, displayName, photoURL} = auth.currentUser; 
+      dispatch(addUser({uid: uid, email: email, displayName: displayName, photoURL: photoURL}));  
+      
+    })
+    .catch((error) => {
+      // An error occurred
+      // ...
+      setErrorMessage(error.message)
+    });
+    
+    
+    
+    
+    // ...
+  })
+  .catch((error) => {
+    const errorCode = error.code;
+    const errorMessage = error.message;
+    setErrorMessage(errorCode + " " + errorMessage)
+    // ..
+  });
+    }
+    else{
+      //Sign In Logic
+      signInWithEmailAndPassword(auth,email.current.value,password.current.value )
+  .then((userCredential) => {
+    // Signed in 
+    const user = userCredential.user;
+    
+  })
+  .catch((error) => {
+    const errorCode = error.code;
+    const errorMessage = error.message;
+    setErrorMessage(errorCode + " " + errorMessage)
+  });
+      
+
+    }
     
     }
 
@@ -30,7 +92,7 @@ const Login = () => {
     <div>
       <Header />
       <div className='absolute'>
-        <img src='https://isquad.tv/wp-content/uploads/2018/08/Netflix-Background.jpg' 
+        <img src= {BackgroundIMG}
         alt='logo'
         />
       </div>
