@@ -32,6 +32,9 @@ Created movieSlice
 - Build Movie Card
 - TMDB Image CDN URL
 - usePopularMovies Custom hook.
+- GPT Search Page
+- GPT Search bar
+- Multi Language feature
 
 
 
