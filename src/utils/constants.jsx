@@ -17,3 +17,5 @@ export const API_OPTIONS = {
     {identifier : "hindi" , name : "Hindi"},
     {identifier : "spanish" , name : "Spanish"}
   ]
+
+ export const OPENAI_KEY = "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";
