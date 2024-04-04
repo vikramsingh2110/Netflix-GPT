@@ -1,13 +1,28 @@
 import React, { useRef } from 'react'
 import lang from '../utils/languageConstants'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import openai from '../utils/openai';
+import { API_OPTIONS } from '../utils/constants';
+import { addGptMovieResults } from '../utils/gptSlice';
 
 export const GPTSearchBar = () => {
 
+    const dispatch = useDispatch();
     const searchText = useRef(null);
+
+    const searchMovieTMDB = async(movie) => {
+      const data = await fetch(
+        "https://api.themoviedb.org/3/search/movie?query="+
+        movie +
+        "&include_adult=false&language=en-US&page=1", 
+        API_OPTIONS
+        );
+        const json = await data.json();
+        return json.results;
+    }
+
     const handleGPTClick = async() =>{
-        console.log(searchText.current.value);
+        //console.log(searchText.current.value);
         //Make an API call to GPT API 
     
       const gptQuery = "Act as a Movie Recommendation system and suggest some movies for the query : " + searchText.current.value + ". Only give me name of 5 movies, cooma separated like the example result given ahead. Example result:Don, Gadar, Sholay, Golmaal, Koi Mil Gaya";
@@ -16,7 +31,19 @@ export const GPTSearchBar = () => {
         messages: [{ role: 'user', content: gptQuery  }],
         model: 'gpt-3.5-turbo',
       });
-      console.log(gptResults.choices);
+      if(!gptResults.choices){
+        console.log("Error")
+      }
+
+      console.log(gptResults.choices?.[0]?.message?.content);
+      const gptMovies = gptResults.choices?.[0]?.message?.content.split(",");
+      // for each movie search tmdb api
+      const promiseArray = gptMovies.map(movie => searchMovieTMDB(movie))
+      const tmdbResults = await  Promise.all(promiseArray);
+      console.log(tmdbResults)
+
+      dispatch(addGptMovieResults({movieNames : gptMovies, movieResults: tmdbResults}))
+      
     }
 
     const langKey = useSelector(store => store.config.lang)
